@@ -1,13 +1,18 @@
+# syntax=docker/dockerfile:1
 FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+RUN --mount=type=cache,id=zdayka-npm,target=/root/.npm,sharing=locked \
+    npm ci --no-audit --no-fund
 
 FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
+COPY package.json package-lock.json next.config.ts tsconfig.json next-env.d.ts ./
+COPY src ./src
+COPY public ./public
+RUN --mount=type=cache,id=zdayka-next,target=/app/.next/cache,sharing=locked \
+    npm run build
 
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app

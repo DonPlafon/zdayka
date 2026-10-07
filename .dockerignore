@@ -7,3 +7,8 @@ node_modules
 .tg_outbox
 *.tsbuildinfo
 npm-debug.log*
+assets/
+index.html
+script.js
+styles.css
+scripts/
