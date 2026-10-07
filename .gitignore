@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.data/
+.env
+.env.local
+.env.*
+!.env.example
+*.tsbuildinfo
+.tg_inbox/
+.tg_outbox/

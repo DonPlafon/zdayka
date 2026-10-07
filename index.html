@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f8f8f4" />
+    <title>Здайка — тестовий прототип</title>
+    <meta name="description" content="Здайка: опиши завдання, обери вид роботи й напрям та переглянь тестову заявку." />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./script.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="#top" aria-label="Здайка — на головну">Здайка<span class="brand-spark" aria-hidden="true"></span></a>
+        <nav class="desktop-nav" aria-label="Основна навігація">
+          <a href="#work-types">Види робіт</a>
+          <a href="#subjects">Напрями</a>
+          <a href="#how-it-works">Як працюємо</a>
+        </nav>
+        <a class="cabinet-link" href="#demo-cabinet">Демо-кабінет <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero shell" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-dot"></span> Тестовий прототип</div>
+          <h1 id="hero-title">Курсові, дипломні, лабораторні та інші завдання</h1>
+          <p class="hero-lead">Напиши, що потрібно. Ціну, термін і склад роботи погодимо після перегляду завдання.</p>
+          <div class="hero-points" aria-label="Як працює замовлення">
+            <span>Ціна до початку</span>
+            <span>Етапи в кабінеті</span>
+            <span>Умови правок письмово</span>
+          </div>
+          <div class="mascot-wrap">
+            <img src="./assets/metodiy.png" alt="Кріт Методій розглядає аркуш із завданням" width="800" height="760" />
+          </div>
+        </div>
+
+        <form class="quick-form" id="quick-form" novalidate>
+          <div class="form-heading">
+            <div>
+              <p class="form-kicker">Заявка</p>
+              <h2>Опиши завдання</h2>
+            </div>
+            <span class="form-step">01 / 02</span>
+          </div>
+          <label class="field-label" for="description">Що потрібно зробити?</label>
+          <textarea id="description" name="description" rows="6" minlength="15" maxlength="3000" required placeholder="Наприклад: курсова з психології, є методичка, потрібно до 20 жовтня"></textarea>
+          <div class="field-meta"><span id="description-error" class="field-error" role="alert"></span><span id="character-count">0 / 3000</span></div>
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label" for="work-type">Вид роботи <span>необов’язково</span></label>
+              <select id="work-type" name="workType">
+                <option value="">Не знаю</option>
+                <option>Курсова</option>
+                <option>Кваліфікаційна / дипломна</option>
+                <option>Лабораторна</option>
+                <option>Розрахунки й задачі</option>
+                <option>Перевірка й доопрацювання</option>
+                <option>Інше</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="subject">Напрям <span>необов’язково</span></label>
+              <select id="subject" name="subject">
+                <option value="">Не знаю</option>
+                <option>Економіка</option>
+                <option>Фінанси</option>
+                <option>Психологія</option>
+                <option>Математика</option>
+                <option>Програмування</option>
+                <option>Бази даних</option>
+                <option>Інше</option>
+              </select>
+            </div>
+          </div>
+          <p class="form-hint">Методичку й файли можна додати пізніше.</p>
+          <button class="primary-button" type="submit">Продовжити <span aria-hidden="true">→</span></button>
+          <p class="demo-note">Демо: заявка збережеться лише в цьому браузері. Дані нікуди не надсилаються.</p>
+        </form>
+      </section>
+
+      <section class="browse shell" aria-label="Послуги й напрями">
+        <div class="browse-block" id="work-types">
+          <div class="section-heading"><span class="section-index">01</span><h2>Яка робота?</h2></div>
+          <div class="choice-list" data-target="work-type">
+            <button type="button" data-value="Курсова">Курсова</button>
+            <button type="button" data-value="Кваліфікаційна / дипломна">Кваліфікаційна / дипломна</button>
+            <button type="button" data-value="Лабораторна">Лабораторна</button>
+            <button type="button" data-value="Розрахунки й задачі">Розрахунки й задачі</button>
+            <button type="button" data-value="Перевірка й доопрацювання">Перевірка й доопрацювання</button>
+            <button type="button" data-value="Інше">Інше</button>
+          </div>
+        </div>
+        <div class="browse-block" id="subjects">
+          <div class="section-heading"><span class="section-index">02</span><h2>Який напрям?</h2></div>
+          <div class="choice-list" data-target="subject">
+            <button type="button" data-value="Економіка">Економіка</button>
+            <button type="button" data-value="Фінанси">Фінанси</button>
+            <button type="button" data-value="Психологія">Психологія</button>
+            <button type="button" data-value="Математика">Математика</button>
+            <button type="button" data-value="Програмування">Програмування</button>
+            <button type="button" data-value="Бази даних">Бази даних</button>
+            <button type="button" data-value="Інше">Інше</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="how shell" id="how-it-works" aria-labelledby="how-title">
+        <div class="how-header"><p class="overline">Порядок роботи</p><h2 id="how-title">Що буде після заявки</h2></div>
+        <div class="how-grid">
+          <article><span>01</span><h3>Уточнимо деталі</h3><p>Переглянемо опис і попросимо те, чого бракує для оцінки.</p></article>
+          <article><span>02</span><h3>Погодимо умови</h3><p>Зафіксуємо склад роботи, ціну, термін та етапи.</p></article>
+          <article><span>03</span><h3>Покажемо хід роботи</h3><p>У кабінеті будуть етапи, файли й історія змін.</p></article>
+        </div>
+      </section>
+
+      <section class="demo-cabinet shell" id="demo-cabinet" aria-labelledby="cabinet-title">
+        <div class="cabinet-title-row"><div><p class="overline">Тільки для перевірки інтерфейсу</p><h2 id="cabinet-title">Демо-кабінет</h2></div><button id="edit-draft" class="text-button" type="button" hidden>Змінити заявку ↗</button></div>
+        <div id="cabinet-empty" class="cabinet-empty"><span class="empty-icon" aria-hidden="true">✦</span><p>Тут з’явиться твоя тестова заявка.</p><a href="#quick-form">Заповнити форму →</a></div>
+        <div id="cabinet-card" class="cabinet-card" hidden>
+          <div class="card-top"><div><span class="status-pill">Чернетка</span><h3>Тестова заявка</h3></div><span class="card-id" id="draft-date"></span></div>
+          <div class="card-meta"><div><span>Вид роботи</span><strong id="draft-type"></strong></div><div><span>Напрям</span><strong id="draft-subject"></strong></div><div><span>Термін</span><strong id="draft-deadline"></strong></div></div>
+          <div class="draft-description"><span>Опис завдання</span><p id="draft-description"></p></div>
+          <p class="local-only">Це чернетка для тесту. Вона не передана менеджеру.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><div class="shell"><span class="brand footer-brand">Здайка</span><span>Тестовий прототип · без приймання замовлень</span></div></footer>
+
+    <dialog id="details-dialog" class="details-dialog" aria-labelledby="details-title">
+      <form id="details-form" method="dialog">
+        <div class="dialog-top"><div><p class="form-kicker">Крок 02 / 02</p><h2 id="details-title">Коли потрібно?</h2></div><button class="icon-button" type="button" id="close-dialog" aria-label="Закрити">×</button></div>
+        <p class="dialog-intro">Дата потрібна для оцінки. Якщо не знаєш точну — обери приблизну.</p>
+        <label class="field-label" for="deadline">Бажаний термін</label>
+        <input id="deadline" name="deadline" type="date" required />
+        <p class="field-error" id="deadline-error" role="alert"></p>
+        <button class="primary-button" type="submit">Зберегти демо-заявку <span aria-hidden="true">→</span></button>
+        <p class="demo-note">Зберігаємо лише в цьому браузері. Telegram і оплата ще не підключені.</p>
+      </form>
+    </dialog>
+  </body>
+</html>
