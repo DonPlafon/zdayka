@@ -1,10 +1,22 @@
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { createRemoteJWKSet, errors, jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 import { attachSession, upsertTelegramUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 const jwks = createRemoteJWKSet(new URL("https://oauth.telegram.org/.well-known/jwks.json"));
+
+function tokenErrorCode(error: unknown) {
+  if (error instanceof errors.JWTClaimValidationFailed) {
+    if (error.claim === "aud") return "audience";
+    if (error.claim === "iss") return "issuer";
+    return "claims";
+  }
+  if (error instanceof errors.JWTExpired) return "expired";
+  if (error instanceof errors.JWKSNoMatchingKey || error instanceof errors.JWKSTimeout || error instanceof errors.JWKSInvalid) return "key";
+  if (error instanceof errors.JWSSignatureVerificationFailed) return "signature";
+  return "token";
+}
 
 export async function GET(request: NextRequest) {
   const origin = process.env.APP_ORIGIN || request.nextUrl.origin;
@@ -31,8 +43,14 @@ export async function GET(request: NextRequest) {
     if (!exchange.ok) throw new Error("Token exchange failed");
     const tokens = await exchange.json() as { id_token?: string };
     if (!tokens.id_token) throw new Error("Missing ID token");
-    step = "token";
-    const { payload } = await jwtVerify(tokens.id_token, jwks, { issuer: "https://oauth.telegram.org", audience: clientId });
+    let payload;
+    try {
+      ({ payload } = await jwtVerify(tokens.id_token, jwks, { issuer: "https://oauth.telegram.org", audience: clientId }));
+    } catch (error) {
+      step = tokenErrorCode(error);
+      throw error;
+    }
+    step = "identity";
     const id = payload.id;
     if (typeof id !== "number" || !Number.isSafeInteger(id)) throw new Error("Missing Telegram ID");
     step = "account";

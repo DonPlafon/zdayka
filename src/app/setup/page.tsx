@@ -8,6 +8,13 @@ const loginErrors: Record<string, string> = {
   state: "Час входу минув або сесія змінилася. Спробуй ще раз.",
   exchange: "Telegram не підтвердив код входу. Перевір Client ID, Client Secret і Redirect URI.",
   token: "Не вдалося перевірити відповідь Telegram. Спробуй ще раз.",
+  audience: "Telegram видав відповідь для іншого бота. Перевір Client ID.",
+  issuer: "Відповідь надійшла не від очікуваного сервісу Telegram.",
+  claims: "У відповіді Telegram бракує потрібних даних.",
+  expired: "Час входу минув. Спробуй ще раз.",
+  key: "Не вдалося перевірити ключ Telegram. Спробуй ще раз.",
+  signature: "Підпис відповіді Telegram не збігається.",
+  identity: "Telegram не передав ID акаунта. Перевір дозвіл Profile для входу.",
   account: "Не вдалося відкрити кабінет. Спробуй ще раз."
 };
 
