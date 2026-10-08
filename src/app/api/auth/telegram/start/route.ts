@@ -5,11 +5,11 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
   const clientId = process.env.TELEGRAM_CLIENT_ID;
-  if (!clientId || !process.env.TELEGRAM_CLIENT_SECRET) return NextResponse.redirect(new URL("/setup?missing=telegram", request.url));
+  const origin = process.env.APP_ORIGIN || request.nextUrl.origin;
+  if (!clientId || !process.env.TELEGRAM_CLIENT_SECRET) return NextResponse.redirect(new URL("/setup?missing=telegram", origin));
   const verifier = randomBytes(32).toString("base64url");
   const state = randomBytes(24).toString("base64url");
   const challenge = createHash("sha256").update(verifier).digest("base64url");
-  const origin = process.env.APP_ORIGIN || request.nextUrl.origin;
   const redirectUri = `${origin}/api/auth/telegram/callback`;
   const requestedNext = request.nextUrl.searchParams.get("next");
   const next = requestedNext === "/admin" || requestedNext === "/cabinet/new" ? requestedNext : "/cabinet";
