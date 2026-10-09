@@ -15,6 +15,8 @@ function tokenErrorCode(error: unknown) {
   if (error instanceof errors.JWTExpired) return "expired";
   if (error instanceof errors.JWKSNoMatchingKey || error instanceof errors.JWKSTimeout || error instanceof errors.JWKSInvalid) return "key";
   if (error instanceof errors.JWSSignatureVerificationFailed) return "signature";
+  if (error instanceof errors.JWTInvalid || error instanceof errors.JWSInvalid || error instanceof errors.JOSEAlgNotAllowed) return "format";
+  if (error instanceof TypeError) return "network";
   return "token";
 }
 

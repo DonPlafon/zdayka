@@ -8,6 +8,7 @@ import type { Role, User } from "@/lib/models";
 
 const sessionName = "zdayka_session";
 const devSecret = randomBytes(32).toString("hex");
+type SessionUser = User & { staffAuthenticated: boolean };
 
 function key() {
   const value = process.env.SESSION_SECRET || (process.env.NODE_ENV !== "production" ? devSecret : "");
@@ -15,20 +16,21 @@ function key() {
   return new TextEncoder().encode(value);
 }
 
-export async function sessionToken(userId: string) {
-  return new SignJWT({ sub: userId })
+export async function sessionToken(userId: string, method: "telegram" | "staff" = "telegram") {
+  return new SignJWT({ sub: userId, auth_method: method })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("30d")
+    .setExpirationTime(method === "staff" ? "12h" : "30d")
     .sign(key());
 }
 
-export async function userFromToken(token?: string) {
+export async function userFromToken(token?: string): Promise<SessionUser | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, key(), { algorithms: ["HS256"] });
     if (!payload.sub) return null;
-    return one<User>("SELECT id,name,username,role,bot_started FROM users WHERE id=?", payload.sub) || null;
+    const user = one<User>("SELECT id,name,username,role,bot_started FROM users WHERE id=?", payload.sub);
+    return user ? { ...user, staffAuthenticated: payload.auth_method === "staff" } : null;
   } catch { return null; }
 }
 
@@ -41,9 +43,9 @@ export async function requestUser(request: NextRequest) {
   return userFromToken(request.cookies.get(sessionName)?.value);
 }
 
-export async function attachSession(response: NextResponse, userId: string) {
-  response.cookies.set(sessionName, await sessionToken(userId), {
-    httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 30
+export async function attachSession(response: NextResponse, userId: string, method: "telegram" | "staff" = "telegram") {
+  response.cookies.set(sessionName, await sessionToken(userId, method), {
+    httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: method === "staff" ? 60 * 60 * 12 : 60 * 60 * 24 * 30
   });
   return response;
 }
@@ -62,8 +64,8 @@ export function upsertTelegramUser(id: string, name: string, username?: string |
   return one<User>("SELECT id,name,username,role,bot_started FROM users WHERE id=?", id)!;
 }
 
-export function isStaff(user: User | null): user is User & { role: "manager" | "owner" } {
-  return Boolean(user && (user.role === "owner" || user.role === "manager"));
+export function isStaff(user: User | null): user is SessionUser & { role: "manager" | "owner" } {
+  return Boolean(user && (user as SessionUser).staffAuthenticated && (user.role === "owner" || user.role === "manager"));
 }
 
 export function verifyMiniAppData(raw: string) {
@@ -89,6 +91,9 @@ export function verifyMiniAppData(raw: string) {
 export function safeOrigin(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (!origin) return false;
-  try { return new URL(origin).host === request.nextUrl.host; }
+  try {
+    const expected = process.env.APP_ORIGIN ? new URL(process.env.APP_ORIGIN).origin : request.nextUrl.origin;
+    return new URL(origin).origin === expected;
+  }
   catch { return false; }
 }

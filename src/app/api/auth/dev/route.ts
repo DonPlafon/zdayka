@@ -12,5 +12,5 @@ export async function GET(request: NextRequest) {
   const role = request.nextUrl.searchParams.get("role") === "owner" ? "owner" : request.nextUrl.searchParams.get("role") === "manager" ? "manager" : "client";
   const id = role === "owner" ? "dev-owner" : role === "manager" ? "dev-manager" : "dev-client";
   run("INSERT INTO users(id,name,role) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET role=excluded.role", id, role === "owner" ? "Власниця · демо" : role === "manager" ? "Менеджер · демо" : "Клієнт · демо", role);
-  return attachSession(NextResponse.redirect(new URL(role === "client" ? "/cabinet" : "/admin", request.url)), id);
+  return attachSession(NextResponse.redirect(new URL(role === "client" ? "/cabinet" : "/admin", request.url)), id, role === "client" ? "telegram" : "staff");
 }

@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import type { AppState, Snapshot } from "@/lib/client-types";
 import { action, downloadFile, loadState, uploadFile } from "@/lib/client-api";
 import { dateLabel, money, statusLabels } from "@/lib/catalog";
@@ -120,7 +121,7 @@ export function AdminClient() {
     return result;
   }, [state, filter, statusFilter, search]);
   const selected = state?.requests.find(x => x.id === selectedId);
-  return <main className="admin-page shell"><div className="admin-header"><div><p className="overline">Робоче місце</p><h1>Заявки та замовлення</h1></div><span className="small-muted">Найважливіше — де зараз потрібна дія</span></div>
+  return <main className="admin-page shell"><div className="admin-header"><div><p className="overline">Робоче місце</p><h1>Заявки та замовлення</h1><p className="small-muted">Спочатку заявки, де зараз потрібна твоя дія.</p></div><Link className="secondary-button admin-demo-link" href="/admin/demo">Переглянути шлях клієнта ↗</Link></div>
     {state?.stats && <div className="stats-grid"><div><span>Заявки</span><strong>{state.stats.requests}</strong></div><div><span>Оплачені замовлення</span><strong>{state.stats.confirmedOrders}</strong></div><div><span>Підтверджені платежі</span><strong>{money(state.stats.confirmedRevenueCents)}</strong></div><div><span>Витрати</span><strong>{money(state.stats.costCents)}</strong></div><div><span>Різниця до інших витрат</span><strong>{money(state.stats.confirmedRevenueCents - state.stats.costCents)}</strong></div></div>}
     {!state && !error && <p>Завантажуємо…</p>}{error && <p className="inline-error" role="alert">{error}</p>}{message && <p className="inline-success" role="status">{message}</p>}
     {state && <div className="admin-workspace"><section className="admin-queue"><div className="queue-controls"><input type="search" placeholder="Пошук за клієнтом, темою або №" value={search} onChange={e => setSearch(e.target.value)} /><select aria-label="Статус заявки" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="all">Усі статуси</option>{Object.entries(statusLabels).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select><div className="filter-row">{[["all", "Усі"], ["new", "Нові"], ["action", "Потрібна дія"], ["deadline", "За терміном"]].map(([value, label]) => <button key={value} className={filter === value ? "active" : ""} onClick={() => setFilter(value)}>{label}</button>)}</div></div>

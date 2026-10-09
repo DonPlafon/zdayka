@@ -226,7 +226,7 @@ export function stateFor(user: User) {
   const requests = isStaff(user)
     ? many<RequestRow>("SELECT * FROM requests ORDER BY created_at DESC LIMIT 200")
     : many<RequestRow>("SELECT * FROM requests WHERE client_id=? ORDER BY created_at DESC LIMIT 100", user.id);
-  const stats = user.role === "owner" ? {
+  const stats = isStaff(user) && user.role === "owner" ? {
     confirmedOrders: one<{ n: number }>("SELECT COUNT(*) AS n FROM orders")?.n || 0,
     confirmedRevenueCents: one<{ n: number }>("SELECT COALESCE(SUM(amount_cents),0) AS n FROM payments WHERE state='confirmed'")?.n || 0,
     costCents: one<{ n: number }>("SELECT COALESCE(SUM(cost_cents),0) AS n FROM orders")?.n || 0,

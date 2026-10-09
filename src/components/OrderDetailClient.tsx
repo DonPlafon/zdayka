@@ -52,10 +52,20 @@ export function OrderDetailClient({ id }: { id: string }) {
   const pending = item.payments.some(x => x.state === "reported");
   const canReport = offer?.accepted_at && !pending && confirmed < offer.total_cents && item.status !== "cancelled";
   const contact = state.setup.managerUsername || state.setup.botUsername;
+  const nextStep = item.status === "cancelled" ? "Заявку скасовано. Історія умов та оплат доступна нижче."
+    : item.status === "closed" ? "Замовлення закрито. Файли залишаться доступними протягом строку зберігання."
+    : !offer ? item.status === "needs_info" ? "Менеджеру потрібні деталі. Перевір повідомлення в історії та додай матеріали, якщо вони є." : "Менеджер переглядає завдання. Коли пропозиція буде готова, вона з’явиться в цій картці."
+    : !offer.accepted_at ? "Перевір склад, ціну, термін і етапи. Якщо все підходить, підтвердь умови нижче."
+    : pending ? "Твоє повідомлення про оплату отримано. Менеджер перевірить надходження."
+    : confirmed < offer.deposit_cents ? "Умови погоджено. Після оплати повідом про неї менеджера."
+    : item.order?.final_released_at ? "Фінальні файли доступні в розділі «Файли». Якщо є зауваження — подай правки нижче."
+    : item.stages.some(stage => stage.delivered_at) ? "Готовий етап і його файли доступні нижче. Перевір результат у картці."
+    : "Замовлення в роботі. Результат кожного етапу з’явиться тут.";
   return <main className="shell detail-page"><Link className="back-link" href="/cabinet">← Мої заявки</Link>
     <div className="detail-title"><div><p className="overline">Заявка № {item.id.slice(0, 8)}</p><h1>{item.work_type || "Завдання"}{item.subject ? ` · ${item.subject}` : ""}</h1></div><span className="status-pill">{statusLabels[item.status] || item.status}</span></div>
     {error && <p className="inline-error" role="alert">{error}</p>}{message && <p className="inline-success" role="status">{message}</p>}
     <div className="detail-layout"><div className="detail-main">
+      <section className="detail-panel client-next-step"><p className="overline">Що зараз?</p><h2>{statusLabels[item.status] || item.status}</h2><p>{nextStep}</p></section>
       <section className="detail-panel"><h2>Завдання</h2><p className="scope-text">{item.description}</p><div className="meta-row"><span>Термін: {item.urgent ? "терміново — менеджер уточнить час" : dateLabel(item.deadline)}</span>{item.topic && <span>Тема: {item.topic}</span>}{item.volume && <span>Обсяг: {item.volume}</span>}</div></section>
       <OfferCard item={item} onAction={doAction} busy={busy} />
       {item.order && <section className="detail-panel"><h2>Етапи</h2><div className="stage-list">{item.stages.map(stage => <div key={stage.id} className={stage.delivered_at ? "stage done" : "stage"}><span className="stage-dot" /><div><strong>{stage.title}</strong><p>{stage.result_description}</p>{stage.delivered_at && <p className="stage-note">{stage.delivery_note || "Результат доступний у файлах"}</p>}</div><span>{stage.delivered_at ? "Готово" : dateLabel(stage.due_at)}</span></div>)}</div></section>}
