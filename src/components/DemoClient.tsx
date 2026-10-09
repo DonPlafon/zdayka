@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { subjects, workTypes } from "@/lib/catalog";
 
-type View = "list" | "form" | "order";
+type View = "list" | "form" | "order" | "notifications";
 type Phase = "empty" | "received" | "offer" | "accepted" | "reported" | "working" | "stage" | "final" | "released" | "revision";
 
 const flow: Phase[] = ["empty", "received", "offer", "accepted", "reported", "working", "stage", "final", "released", "revision"];
@@ -25,6 +25,7 @@ function saveDemoFile() {
 
 export function DemoClient() {
   const [view, setView] = useState<View>("list");
+  const [preview, setPreview] = useState<"desktop" | "mobile">("desktop");
   const [phase, setPhase] = useState<Phase>("empty");
   const [description, setDescription] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -46,11 +47,12 @@ export function DemoClient() {
 
   return <main className="demo-page shell">
     <div className="demo-toolbar"><div><span className="demo-tag">Закрите демо · без реальних дій</span><h1>Кабінет очима клієнта</h1><p>Пройди шлях від першої заявки до правок. Дані тут вигадані лише для перевірки інтерфейсу.</p></div>
-      <div className="demo-toolbar-actions"><Link className="secondary-button" href="/admin">← В адмінку</Link><button className="secondary-button" type="button" onClick={reset}>Почати спочатку</button></div></div>
+      <div className="demo-toolbar-actions"><Link className="secondary-button" href="/admin">← В адмінку</Link><button className="secondary-button" type="button" aria-pressed={preview === "mobile"} onClick={() => setPreview(preview === "mobile" ? "desktop" : "mobile")}>{preview === "mobile" ? "Вид ПК" : "Вид телефона"}</button><button className="secondary-button" type="button" onClick={reset}>Почати спочатку</button></div></div>
     <div className="demo-progress" aria-label="Стан демонстрації">{flow.map((step, index) => <button type="button" key={step} className={index <= phaseIndex ? "active" : ""} onClick={() => { setPhase(step); setView(step === "empty" ? "list" : "order"); setNotice("Перейшли до стану «" + labels[step] + "»."); }}><span>{String(index + 1).padStart(2, "0")}</span>{labels[step]}</button>)}</div>
-    <div className="demo-browser"><div className="demo-browser-top"><span className="demo-browser-dots" aria-hidden="true"><i /><i /><i /></span><span>Попередній перегляд клієнта</span><strong>ДЕМО</strong></div>
-      <div className="demo-browser-content"><div className="demo-client-nav"><button type="button" onClick={() => setView("list")}>Здайка<span className="brand-spark" /></button><div><button type="button" onClick={() => setView("list")}>Мої заявки</button><button type="button" onClick={() => setView("form")}>Нова заявка</button></div></div>
+    <div className={preview === "mobile" ? "demo-browser mobile-preview" : "demo-browser"}><div className="demo-browser-top"><span className="demo-browser-dots" aria-hidden="true"><i /><i /><i /></span><span>Попередній перегляд клієнта</span><strong>ДЕМО</strong></div>
+      <div className="demo-browser-content"><div className="demo-client-nav"><button type="button" onClick={() => setView("list")}>Здайка<span className="brand-spark" /></button><div><button type="button" onClick={() => setView("list")}>Мої заявки</button><button type="button" onClick={() => setView("form")}>Нова заявка</button><button type="button" onClick={() => setView("notifications")}>Події{phaseIndex > 0 ? ` · ${phaseIndex}` : ""}</button></div></div>
         {notice && <p className="inline-success demo-notice" role="status">{notice}</p>}
+        {view === "notifications" && <section className="demo-client-screen demo-events-screen"><p className="overline">Кабінет</p><h2>Події замовлення</h2><p>Ті самі зміни клієнт бачить у картці. Повідомлення в Telegram у цьому демо не надсилаються.</p>{phaseIndex === 0 ? <div className="demo-events-empty">Коли з’явиться заявка, тут буде її історія.</div> : <div className="demo-events-list">{flow.slice(1, phaseIndex + 1).reverse().map((step, index) => <button type="button" key={step} onClick={() => setView("order")}><span className="demo-event-dot" aria-hidden="true" /><span><small>{index === 0 ? "Остання подія" : "Раніше"}</small><strong>{labels[step]}</strong><em>Відкрити картку →</em></span></button>)}</div>}</section>}
         {view === "list" && <section className="demo-client-screen"><div className="demo-section-head"><div><p className="overline">Кабінет</p><h2>Мої заявки</h2><p>Усе, що відбувається із завданням, зібрано тут.</p></div><button className="button-link" type="button" onClick={() => setView("form")}>+ Нова заявка</button></div>
           {phase === "empty" ? <div className="demo-empty"><Image src="/metodiy.png" width={1312} height={1199} alt="Методій чекає на опис завдання" /><h3>Заявок ще немає</h3><p>Опиши завдання своїми словами. Методичку можна додати пізніше.</p><button className="primary-button" type="button" onClick={() => setView("form")}>Створити заявку →</button></div>
             : <button type="button" className="demo-request-card" onClick={() => setView("order")}><span className="status-pill">{labels[phase]}</span><h3>{title}</h3><p>{description || "Завдання — демонстраційний приклад."}</p><span>Відкрити картку <b>→</b></span></button>}</section>}
